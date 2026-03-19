@@ -1,0 +1,20 @@
+#!/bin/sh
+PREREQ=""
+prereqs() { echo "$PREREQ"; }
+case "$1" in prereqs) prereqs; exit 0;; esac
+
+BOOTNEXT=""
+for param in $(cat /proc/cmdline); do
+    case "$param" in
+        bootnext=*) BOOTNEXT="${param#bootnext=}" ;;
+    esac
+done
+
+[ -n "$BOOTNEXT" ] || exit 0
+
+if ! mountpoint -q /sys/firmware/efi/efivars; then
+    mount -t efivarfs efivarfs /sys/firmware/efi/efivars
+fi
+
+efibootmgr --bootnext "$BOOTNEXT"
+reboot -f
