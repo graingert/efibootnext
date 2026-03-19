@@ -1,5 +1,13 @@
-efibootnext (0.1.0-1) unstable; urgency=medium
+efibootnext (0.1.0) unstable; urgency=medium
 
-  * Initial release.
+  * Initial .deb packaging.
+  * Move files into etc/ directory structure.
+  * Add postinst/postrm to run update-grub and update-initramfs.
+  * Fix license mismatch (now MIT throughout).
+  * Add grub-common as explicit dependency.
+  * Auto-detect Windows via os-prober and match EFI boot entry.
+  * Run before LUKS prompt to avoid unnecessary password entry.
+  * Validate bootnext parameter and handle efibootmgr failures gracefully.
+  * Respect GRUB_DISABLE_OS_PROBER and GRUB_OS_PROBER_SKIP_LIST.
 
  -- Thomas Grainger <tagrain@gmail.com>  Thu, 19 Mar 2026 12:00:00 +0000
