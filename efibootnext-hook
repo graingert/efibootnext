@@ -6,5 +6,7 @@ case "$1" in prereqs) prereqs; exit 0;; esac
 
 . /usr/share/initramfs-tools/hook-functions
 
+[ "${verbose}" = "y" ] && echo "I: efibootnext: copying efibootmgr"
 copy_exec "$(which efibootmgr)"
+[ "${verbose}" = "y" ] && echo "I: efibootnext: adding efivars module"
 manual_add_modules efivars
