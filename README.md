@@ -29,25 +29,21 @@ configuration is needed.
 
 | File | Install to |
 |------|------------|
-| `efibootnext-hook` | `/etc/initramfs-tools/hooks/efibootnext` |
-| `efibootnext-premount` | `/etc/initramfs-tools/scripts/init-premount/efibootnext` |
-| `50_efibootnext` | `/etc/grub.d/50_efibootnext` |
+| `etc/initramfs-tools/hooks/efibootnext` | `/etc/initramfs-tools/hooks/efibootnext` |
+| `etc/initramfs-tools/scripts/init-premount/efibootnext` | `/etc/initramfs-tools/scripts/init-premount/efibootnext` |
+| `etc/grub.d/50_efibootnext` | `/etc/grub.d/50_efibootnext` |
 
 ## Install
 
 ```sh
-sudo apt install efibootmgr os-prober
-sudo make install
-sudo update-initramfs -u
-sudo update-grub
+dpkg-buildpackage -us -uc -b
+sudo dpkg -i ../efibootnext_0.1.0-1_all.deb
 ```
 
 To uninstall:
 
 ```sh
-sudo make uninstall
-sudo update-initramfs -u
-sudo update-grub
+sudo dpkg -r efibootnext
 ```
 
 ## Verify
