@@ -22,5 +22,8 @@ if ! mountpoint -q /sys/firmware/efi/efivars; then
     mount -t efivarfs efivarfs /sys/firmware/efi/efivars
 fi
 
-efibootmgr --bootnext "$BOOTNEXT"
+if ! efibootmgr --bootnext "$BOOTNEXT"; then
+    echo "efibootnext: failed to set BootNext to $BOOTNEXT, continuing normal boot" >&2
+    exit 0
+fi
 reboot -f
