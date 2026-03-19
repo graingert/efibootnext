@@ -87,6 +87,25 @@ GRUB
          → TPM PCRs are correct, BitLocker unlocks automatically
 ```
 
+## Design notes
+
+The premount script parses `/proc/cmdline` using the same `for x in $(cat /proc/cmdline)` +
+`case` pattern used by `initramfs-tools` itself in `/usr/share/initramfs-tools/init`:
+
+```sh
+# shellcheck disable=SC2013
+for x in $(cat /proc/cmdline); do
+	case $x in
+	root=*)
+		ROOT=${x#root=}
+		;;
+	...
+	esac
+done
+```
+
+This word-splits on spaces, which is fine because `bootnext=XXXX` never contains spaces.
+
 ## Requirements
 
 - Ubuntu with GRUB2 and EFI
