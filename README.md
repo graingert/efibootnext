@@ -126,4 +126,4 @@ This word-splits on spaces, which is fine because `bootnext=XXXX` never contains
 
 ## License
 
-MIT
+GPL-3+
