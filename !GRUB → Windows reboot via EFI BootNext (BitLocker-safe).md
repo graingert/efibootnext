@@ -91,6 +91,7 @@ GRUB
 
 - Ubuntu with GRUB2 and EFI
 - `efibootmgr` and `initramfs-tools` packages
+- `busybox` in the initramfs (provides `reboot`, `mount`, `mountpoint` — included by default on Ubuntu)
 - UEFI firmware (not legacy BIOS)
 
 ## License
