@@ -15,32 +15,59 @@ if ! command -v efibootmgr > /dev/null 2>&1; then
     exit 0
 fi
 
-BOOTNEXT=""
-while IFS= read -r line; do
-    case "$line" in
-        Boot[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]\*\ Windows\ Boot\ Manager*)
-            BOOTNEXT="${line#Boot}"
-            BOOTNEXT="${BOOTNEXT%%\**}"
-            break
-            ;;
-    esac
-done <<EOF
-$(efibootmgr -v)
-EOF
-
-if [ -z "$BOOTNEXT" ]; then
-    echo "efibootnext: no Windows Boot Manager EFI entry found, skipping" >&2
+if ! command -v os-prober > /dev/null 2>&1; then
+    echo "efibootnext: os-prober not found, skipping" >&2
     exit 0
 fi
 
-echo "Adding Windows (EFI BootNext $BOOTNEXT) entry" >&2
+EFIBOOTMGR_OUTPUT="$(efibootmgr -v)"
+OSPROBED="$(os-prober | tr ' ' '^' | paste -s -d ' ')"
 
-cat << EOF
-menuentry 'Windows (EFI BootNext)' --class windows --class os \$menuentry_id_option 'efibootnext-$BOOTNEXT' {
-EOF
-prepare_grub_to_access_device ${GRUB_DEVICE_BOOT} | grub_add_tab
-cat << EOF
+for OS in ${OSPROBED}; do
+    DEVICE="$(echo "${OS}" | cut -d ':' -f 1)"
+    LONGNAME="$(echo "${OS}" | cut -d ':' -f 2 | tr '^' ' ')"
+    BOOT="$(echo "${OS}" | cut -d ':' -f 4)"
+
+    case ${BOOT} in
+        efi) ;;
+        *) continue ;;
+    esac
+
+    EFIPATH="${DEVICE#*@}"
+    # Convert forward slashes to backslashes to match efibootmgr output
+    EFIPATH_BS="$(echo "${EFIPATH}" | tr '/' '\\')"
+
+    BOOTNEXT=""
+    while IFS= read -r line; do
+        case "$line" in
+            Boot[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]\**)
+                case "$line" in
+                    *"File(${EFIPATH_BS})"*)
+                        BOOTNEXT="${line#Boot}"
+                        BOOTNEXT="${BOOTNEXT%%\**}"
+                        break
+                        ;;
+                esac
+                ;;
+        esac
+    done <<EFIEOF
+${EFIBOOTMGR_OUTPUT}
+EFIEOF
+
+    if [ -z "$BOOTNEXT" ]; then
+        echo "efibootnext: no EFI boot entry found for ${EFIPATH}, skipping" >&2
+        continue
+    fi
+
+    echo "Adding ${LONGNAME} (EFI BootNext $BOOTNEXT) entry" >&2
+
+    cat << MENUEOF
+menuentry '$(echo "${LONGNAME} (EFI BootNext)" | grub_quote)' --class windows --class os \$menuentry_id_option 'efibootnext-$BOOTNEXT' {
+MENUEOF
+    prepare_grub_to_access_device ${GRUB_DEVICE_BOOT} | grub_add_tab
+    cat << MENUEOF
 	linux /vmlinuz bootnext=$BOOTNEXT
 	initrd /initrd.img
 }
-EOF
+MENUEOF
+done
