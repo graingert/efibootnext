@@ -35,9 +35,17 @@ configuration is needed.
 
 ## Install
 
+Download the `.deb` from the [latest release](https://github.com/graingert/efibootnext/releases/latest) and install it:
+
+```sh
+sudo dpkg -i efibootnext_*.deb
+```
+
+To build from source:
+
 ```sh
 dpkg-buildpackage -us -uc -b
-sudo dpkg -i ../efibootnext_0.1.0_all.deb
+sudo dpkg -i ../efibootnext_*.deb
 ```
 
 To uninstall:
