@@ -26,6 +26,7 @@ OSPROBED="$(os-prober | tr ' ' '^' | paste -s -d ' ')"
 for OS in ${OSPROBED}; do
     DEVICE="$(echo "${OS}" | cut -d ':' -f 1)"
     LONGNAME="$(echo "${OS}" | cut -d ':' -f 2 | tr '^' ' ')"
+    LABEL="$(echo "${OS}" | cut -d ':' -f 3 | tr '^' ' ')"
     BOOT="$(echo "${OS}" | cut -d ':' -f 4)"
 
     case ${BOOT} in
@@ -62,7 +63,7 @@ EFIEOF
     echo "Adding ${LONGNAME} (EFI BootNext $BOOTNEXT) entry" >&2
 
     cat << MENUEOF
-menuentry '$(echo "${LONGNAME} (EFI BootNext)" | grub_quote)' --class windows --class os \$menuentry_id_option 'efibootnext-$BOOTNEXT' {
+menuentry '$(echo "${LONGNAME} (EFI BootNext)" | grub_quote)' --class $(echo "${LABEL}" | LC_ALL=C sed 's,[[:digit:]]*$,,' | cut -d' ' -f1 | tr 'A-Z' 'a-z' | LC_ALL=C sed 's,[^[:alnum:]_],_,g') --class os \$menuentry_id_option 'efibootnext-$BOOTNEXT' {
 MENUEOF
     prepare_grub_to_access_device ${GRUB_DEVICE_BOOT} | grub_add_tab
     cat << MENUEOF
