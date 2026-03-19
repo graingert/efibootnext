@@ -20,6 +20,11 @@ if ! command -v os-prober > /dev/null 2>&1; then
     exit 0
 fi
 
+if [ "x${GRUB_DISABLE_OS_PROBER}" = "xtrue" ]; then
+    echo "efibootnext: GRUB_DISABLE_OS_PROBER is true, skipping" >&2
+    exit 0
+fi
+
 EFIBOOTMGR_OUTPUT="$(efibootmgr -v)"
 OSPROBED="$(os-prober | tr ' ' '^' | paste -s -d ' ')"
 
