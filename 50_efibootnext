@@ -1,0 +1,46 @@
+#!/bin/sh
+set -e
+
+prefix="/usr"
+exec_prefix="/usr"
+datarootdir="/usr/share"
+
+. "$pkgdatadir/grub-mkconfig_lib"
+
+export TEXTDOMAIN=grub
+export TEXTDOMAINDIR="${datarootdir}/locale"
+
+if ! command -v efibootmgr > /dev/null 2>&1; then
+    echo "efibootnext: efibootmgr not found, skipping" >&2
+    exit 0
+fi
+
+BOOTNEXT=""
+while IFS= read -r line; do
+    case "$line" in
+        Boot[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]\*\ Windows\ Boot\ Manager*)
+            BOOTNEXT="${line#Boot}"
+            BOOTNEXT="${BOOTNEXT%%\**}"
+            break
+            ;;
+    esac
+done <<EOF
+$(efibootmgr -v)
+EOF
+
+if [ -z "$BOOTNEXT" ]; then
+    echo "efibootnext: no Windows Boot Manager EFI entry found, skipping" >&2
+    exit 0
+fi
+
+echo "Adding Windows (EFI BootNext $BOOTNEXT) entry" >&2
+
+cat << EOF
+menuentry 'Windows (EFI BootNext)' --class windows --class os \$menuentry_id_option 'efibootnext-$BOOTNEXT' {
+EOF
+prepare_grub_to_access_device ${GRUB_DEVICE_BOOT} | grub_add_tab
+cat << EOF
+	linux /vmlinuz bootnext=$BOOTNEXT
+	initrd /initrd.img
+}
+EOF
