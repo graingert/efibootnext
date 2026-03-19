@@ -118,4 +118,4 @@ This word-splits on spaces, which is fine because `bootnext=XXXX` never contains
 
 ## License
 
-Public domain / CC0
+MIT

@@ -8,7 +8,7 @@ Rules-Requires-Root: no
 
 Package: efibootnext
 Architecture: all
-Depends: ${misc:Depends}, efibootmgr, os-prober, grub2-common, initramfs-tools
+Depends: ${misc:Depends}, efibootmgr, os-prober, grub-common, grub2-common, initramfs-tools
 Description: Reboot to Windows via EFI BootNext (BitLocker-safe)
  Adds a GRUB menu entry that reboots into Windows (or other EFI OS)
  by setting the EFI BootNext variable from the initramfs, avoiding
