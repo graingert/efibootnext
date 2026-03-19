@@ -37,7 +37,7 @@ configuration is needed.
 
 ```sh
 dpkg-buildpackage -us -uc -b
-sudo dpkg -i ../efibootnext_0.1.0-1_all.deb
+sudo dpkg -i ../efibootnext_0.1.0_all.deb
 ```
 
 To uninstall:
