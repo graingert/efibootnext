@@ -1,4 +1,6 @@
 #!/bin/sh
+# Derived from initramfs-tools (GPL-2.0-or-later), compatible with GPL-3.0-or-later.
+# SPDX-License-Identifier: GPL-3.0-or-later
 set -e
 PREREQ=""
 prereqs() { echo "$PREREQ"; }
