@@ -25,7 +25,10 @@ if [ "x${GRUB_DISABLE_OS_PROBER}" = "xtrue" ]; then
     exit 0
 fi
 
-EFIBOOTMGR_OUTPUT="$(efibootmgr -v)"
+if ! EFIBOOTMGR_OUTPUT="$(efibootmgr -v)"; then
+    echo "efibootnext: efibootmgr -v failed, skipping" >&2
+    exit 0
+fi
 OSPROBED="$(os-prober | tr ' ' '^' | paste -s -d ' ')"
 
 if [ -z "${OSPROBED}" ]; then
