@@ -44,6 +44,17 @@ for OS in ${OSPROBED}; do
         *) continue ;;
     esac
 
+    if UUID="$(${grub_probe} --target=fs_uuid --device "${DEVICE%@*}")"; then
+        EXPUUID="$UUID"
+        if [ x"${DEVICE#*@}" != x ]; then
+            EXPUUID="${EXPUUID}@${DEVICE#*@}"
+        fi
+        if [ "x${GRUB_OS_PROBER_SKIP_LIST}" != "x" ] && [ "x$(echo "${GRUB_OS_PROBER_SKIP_LIST}" | grep -i -e '\b'"${EXPUUID}"'\b')" != "x" ]; then
+            echo "efibootnext: skipped ${LONGNAME} on ${DEVICE} by user request" >&2
+            continue
+        fi
+    fi
+
     EFIPATH="${DEVICE#*@}"
     # Convert forward slashes to backslashes to match efibootmgr output
     EFIPATH_BS="$(echo "${EFIPATH}" | tr '/' '\\')"

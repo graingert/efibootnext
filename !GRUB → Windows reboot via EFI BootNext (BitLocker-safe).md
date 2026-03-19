@@ -84,6 +84,16 @@ GRUB
          → TPM PCRs are correct, BitLocker unlocks automatically
 ```
 
+## Duplicate GRUB entries
+
+`30_os-prober` also detects Windows and creates a chainload menu entry. You will
+see two Windows entries in GRUB: one from `30_os-prober` (chainload, breaks
+BitLocker) and one from `50_efibootnext` (BootNext, BitLocker-safe). Use the
+"(EFI BootNext)" entry. To remove the duplicate, either set
+`GRUB_DISABLE_OS_PROBER=true` in `/etc/default/grub` (disables both scripts) or
+add the Windows partition UUID to `GRUB_OS_PROBER_SKIP_LIST` (both scripts
+respect this).
+
 ## Design notes
 
 The premount script parses `/proc/cmdline` using the same `for x in $(cat /proc/cmdline)` +
