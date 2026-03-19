@@ -1,3 +1,11 @@
+efibootnext (0.1.2) unstable; urgency=medium
+
+  * Update to GPL-3+ licence due to code derived from 30_os-prober.
+  * Comment the code where patterns are taken from 30_os-prober.
+  * Point install instructions to GitHub releases page.
+
+ -- Thomas Grainger <tagrain@gmail.com>  Thu, 19 Mar 2026 18:00:00 +0000
+
 efibootnext (0.1.1) unstable; urgency=medium
 
   * Add debian/clean to remove build artifacts.
