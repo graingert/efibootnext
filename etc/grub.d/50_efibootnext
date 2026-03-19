@@ -1,6 +1,7 @@
 #!/bin/sh
 set -e
 
+# Preamble copied from 30_os-prober
 prefix="/usr"
 exec_prefix="/usr"
 datarootdir="/usr/share"
@@ -20,15 +21,21 @@ if ! command -v os-prober > /dev/null 2>&1; then
     exit 0
 fi
 
+# Copied from 30_os-prober
 if [ "x${GRUB_DISABLE_OS_PROBER}" = "xtrue" ]; then
     echo "efibootnext: GRUB_DISABLE_OS_PROBER is true, skipping" >&2
     exit 0
 fi
 
+# Capture efibootmgr output once, reused via heredoc in the per-OS loop below
 if ! EFIBOOTMGR_OUTPUT="$(efibootmgr -v)"; then
     echo "efibootnext: efibootmgr -v failed, skipping" >&2
     exit 0
 fi
+# os-prober outputs one line per OS, fields colon-delimited. Spaces in names
+# are replaced with ^ so we can safely word-split in the for loop below.
+# paste joins multiple lines into a single space-separated string.
+# (Pattern copied from 30_os-prober)
 OSPROBED="$(os-prober | tr ' ' '^' | paste -s -d ' ')"
 
 if [ -z "${OSPROBED}" ]; then
@@ -37,16 +44,23 @@ if [ -z "${OSPROBED}" ]; then
 fi
 
 for OS in ${OSPROBED}; do
+    # os-prober format: DEVICE:LONGNAME:LABEL:BOOT
+    # e.g. /dev/sda1@/EFI/Microsoft/Boot/bootmgfw.efi:Windows^Boot^Manager:Windows:efi
+    # (Field parsing copied from 30_os-prober)
     DEVICE="$(echo "${OS}" | cut -d ':' -f 1)"
     LONGNAME="$(echo "${OS}" | cut -d ':' -f 2 | tr '^' ' ')"
     LABEL="$(echo "${OS}" | cut -d ':' -f 3 | tr '^' ' ')"
     BOOT="$(echo "${OS}" | cut -d ':' -f 4)"
 
+    # Only handle EFI boot entries; skip BIOS/legacy ones
     case ${BOOT} in
         efi) ;;
         *) continue ;;
     esac
 
+    # Honour GRUB_OS_PROBER_SKIP_LIST: build a UUID[@path] identifier and
+    # check if the user has listed it for exclusion.
+    # (Copied from 30_os-prober)
     if UUID="$(${grub_probe} --target=fs_uuid --device "${DEVICE%@*}")"; then
         EXPUUID="$UUID"
         if [ x"${DEVICE#*@}" != x ]; then
@@ -58,10 +72,14 @@ for OS in ${OSPROBED}; do
         fi
     fi
 
+    # Extract the EFI binary path from after the @ in DEVICE
+    # e.g. /dev/sda1@/EFI/Microsoft/Boot/bootmgfw.efi -> /EFI/Microsoft/Boot/bootmgfw.efi
     EFIPATH="${DEVICE#*@}"
     # Convert forward slashes to backslashes to match efibootmgr output
     EFIPATH_BS="$(echo "${EFIPATH}" | tr '/' '\\')"
 
+    # Find the EFI boot entry number (e.g. 0001) whose File() path matches
+    # the OS that os-prober found, by scanning the cached efibootmgr -v output.
     BOOTNEXT=""
     while IFS= read -r line; do
         case "$line" in
@@ -86,6 +104,11 @@ EFIEOF
 
     echo "Adding ${LONGNAME} (EFI BootNext $BOOTNEXT) entry" >&2
 
+    # Generate a GRUB menu entry that boots Linux with bootnext=XXXX on the
+    # kernel command line. The initramfs hook reads this parameter and calls
+    # efibootmgr --bootnext to set the EFI BootNext variable, then the
+    # system reboots into the selected OS.
+    # (menuentry structure and --class derivation from LABEL copied from 30_os-prober)
     cat << MENUEOF
 menuentry '$(echo "${LONGNAME} (EFI BootNext)" | grub_quote)' --class $(echo "${LABEL}" | LC_ALL=C sed 's,[[:digit:]]*$,,' | cut -d' ' -f1 | tr 'A-Z' 'a-z' | LC_ALL=C sed 's,[^[:alnum:]_],_,g') --class os \$menuentry_id_option 'efibootnext-$BOOTNEXT' {
 MENUEOF
