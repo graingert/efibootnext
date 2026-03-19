@@ -36,20 +36,16 @@ configuration is needed.
 ## Install
 
 ```sh
-# install dependencies
 sudo apt install efibootmgr os-prober
+sudo make install
+sudo update-initramfs -u
+sudo update-grub
+```
 
-# copy initramfs files
-sudo cp efibootnext-hook /etc/initramfs-tools/hooks/efibootnext
-sudo cp efibootnext-premount /etc/initramfs-tools/scripts/init-premount/efibootnext
-sudo chmod +x /etc/initramfs-tools/hooks/efibootnext
-sudo chmod +x /etc/initramfs-tools/scripts/init-premount/efibootnext
+To uninstall:
 
-# install grub.d script (auto-detects Windows boot entry and /boot UUID)
-sudo cp 50_efibootnext /etc/grub.d/50_efibootnext
-sudo chmod +x /etc/grub.d/50_efibootnext
-
-# rebuild initramfs and grub
+```sh
+sudo make uninstall
 sudo update-initramfs -u
 sudo update-grub
 ```
