@@ -1,3 +1,11 @@
+efibootnext (0.1.4) unstable; urgency=medium
+
+  * Move initramfs-tools scripts to /usr/share/initramfs-tools/.
+  * Add GPL-3.0-or-later license notices and cite specific source files.
+  * Note grub script is derived from grub-common's 30_os-prober.
+
+ -- Thomas Grainger <tagrain@gmail.com>  Fri, 20 Mar 2026 08:00:00 +0000
+
 efibootnext (0.1.3) unstable; urgency=medium
 
   * Add COPYING file with GPL-3.0-or-later grant and SPDX identifier.
