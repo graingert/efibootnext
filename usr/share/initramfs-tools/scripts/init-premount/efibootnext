@@ -1,5 +1,5 @@
 #!/bin/sh
-# Derived from initramfs-tools (GPL-2.0-or-later), compatible with GPL-3.0-or-later.
+# Derived from initramfs-tools-core's /usr/share/initramfs-tools/hooks/resume (GPL-2.0-or-later), compatible with GPL-3.0-or-later.
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Copyright (C) 2026  Thomas Grainger <tagrain@gmail.com>
 #
@@ -20,7 +20,26 @@ PREREQ=""
 prereqs() { echo "$PREREQ"; }
 case "$1" in prereqs) prereqs; exit 0;; esac
 
-. /usr/share/initramfs-tools/hook-functions
+BOOTNEXT=""
+for param in $(cat /proc/cmdline); do
+    case "$param" in
+        bootnext=*) BOOTNEXT="${param#bootnext=}" ;;
+    esac
+done
 
-[ "${verbose}" = "y" ] && echo "I: efibootnext: copying efibootmgr"
-copy_exec "$(command -v efibootmgr)"
+[ -n "$BOOTNEXT" ] || exit 0
+
+case "$BOOTNEXT" in
+    [0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]) ;;
+    *) echo "efibootnext: invalid bootnext value: $BOOTNEXT" >&2; exit 1 ;;
+esac
+
+if ! mountpoint -q /sys/firmware/efi/efivars; then
+    mount -t efivarfs efivarfs /sys/firmware/efi/efivars
+fi
+
+if ! efibootmgr --bootnext "$BOOTNEXT"; then
+    echo "efibootnext: failed to set BootNext to $BOOTNEXT, continuing normal boot" >&2
+    exit 0
+fi
+reboot -f
