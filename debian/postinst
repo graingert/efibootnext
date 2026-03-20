@@ -2,6 +2,10 @@
 set -e
 
 if [ "$1" = "configure" ]; then
+    # Clean up old paths from versions prior to 0.1.4
+    rm -f /etc/initramfs-tools/hooks/efibootnext
+    rm -f /etc/initramfs-tools/scripts/init-premount/efibootnext
+
     update-grub || true
     update-initramfs -u || true
 fi
