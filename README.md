@@ -29,8 +29,8 @@ configuration is needed.
 
 | File | Install to |
 |------|------------|
-| `etc/initramfs-tools/hooks/efibootnext` | `/etc/initramfs-tools/hooks/efibootnext` |
-| `etc/initramfs-tools/scripts/init-premount/efibootnext` | `/etc/initramfs-tools/scripts/init-premount/efibootnext` |
+| `usr/share/initramfs-tools/hooks/efibootnext` | `/usr/share/initramfs-tools/hooks/efibootnext` |
+| `usr/share/initramfs-tools/scripts/init-premount/efibootnext` | `/usr/share/initramfs-tools/scripts/init-premount/efibootnext` |
 | `etc/grub.d/50_efibootnext` | `/etc/grub.d/50_efibootnext` |
 
 ## Install
