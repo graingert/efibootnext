@@ -1,3 +1,7 @@
 debian/debhelper-build-stamp
 debian/efibootnext.substvars
 debian/files
+grub-module/*.o
+grub-module/*.mod
+grub-module/*.module
+grub-module/modinfo.mk

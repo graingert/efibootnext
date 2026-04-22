@@ -127,3 +127,11 @@ This word-splits on spaces, which is fine because `bootnext=XXXX` never contains
 ## License
 
 GPL-3+
+
+## Alternative: GRUB module approach
+
+The `grub-module/` directory contains a GRUB EFI module (`bootnext`)
+that can set `BootNext` directly from the GRUB shell without booting a
+Linux kernel, saving one reboot cycle. See [`grub-module/README.md`](grub-module/README.md)
+for details. The initramfs approach above is recommended for systems
+using Ubuntu's stock signed GRUB with Secure Boot.

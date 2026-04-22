@@ -1,4 +1,25 @@
 #!/usr/bin/make -f
 
+PLATFORM := $(if $(filter amd64,$(DEB_HOST_ARCH)),x86_64-efi,arm64-efi)
+GRUB_SRC_DIR := debian/grub-src
+
 %:
 	dh $@
+
+# Fetch and unpack GRUB source to get headers (GRUB doesn't ship a -dev package).
+$(GRUB_SRC_DIR)/include/grub/dl.h:
+	mkdir -p $(GRUB_SRC_DIR)
+	cd $(GRUB_SRC_DIR) && apt-get source --download-only grub2
+	cd $(GRUB_SRC_DIR) && dpkg-source -x *.dsc grub2-src
+	ln -sf grub2-src/include $(GRUB_SRC_DIR)/include
+
+override_dh_auto_build: $(GRUB_SRC_DIR)/include/grub/dl.h
+	$(MAKE) -C grub-module PLATFORM=$(PLATFORM) GRUB_INCLUDE=$(CURDIR)/$(GRUB_SRC_DIR)/include
+
+override_dh_auto_clean:
+	$(MAKE) -C grub-module clean
+	rm -rf $(GRUB_SRC_DIR)
+
+override_dh_auto_install:
+	install -d debian/efibootnext/usr/lib/grub/$(PLATFORM)
+	install -m 0644 grub-module/efibootnext.mod debian/efibootnext/usr/lib/grub/$(PLATFORM)/efibootnext.mod

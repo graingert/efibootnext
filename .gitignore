@@ -6,3 +6,7 @@ debian/tmp/
 debian/.debhelper/
 debian/debhelper-build-stamp
 debian/efibootnext/
+grub-module/*.o
+grub-module/*.mod
+grub-module/*.module
+grub-module/modinfo.mk

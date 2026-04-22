@@ -2,15 +2,15 @@ Source: efibootnext
 Section: admin
 Priority: optional
 Maintainer: Thomas Grainger <tagrain@gmail.com>
-Build-Depends: debhelper-compat (= 13)
+Build-Depends: debhelper-compat (= 13), grub-efi-amd64-bin [amd64], grub-efi-arm64-bin [arm64], dpkg-dev
 Standards-Version: 4.6.2
 Rules-Requires-Root: no
 
 Package: efibootnext
-Architecture: all
-Depends: ${misc:Depends}, efibootmgr, os-prober, grub-common, grub2-common, initramfs-tools
+Architecture: amd64 arm64
+Depends: ${misc:Depends}, efibootmgr, grub-common, grub2-common
 Description: Reboot to Windows via EFI BootNext (BitLocker-safe)
  Adds a GRUB menu entry that reboots into Windows (or other EFI OS)
- by setting the EFI BootNext variable from the initramfs, avoiding
+ by setting the EFI BootNext variable via a GRUB module, avoiding
  the need to change the default GRUB entry or risk breaking BitLocker
  by chainloading the Windows bootloader directly.
