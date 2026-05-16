@@ -1,5 +1,10 @@
 # GRUB → Windows reboot via EFI BootNext (BitLocker-safe)
 
+> **⚠️ Archived:** This package is no longer maintained. The functionality is
+> now available natively in GRUB upstream:
+> <https://gitlab.freedesktop.org/gnu-grub/grub/-/tree/3d0a81dc0542e9f246b17c6837444602649cac80>
+> Use upstream GRUB instead.
+
 Boot Windows from a GRUB menu entry without breaking BitLocker TPM measurements.
 
 ## Problem
